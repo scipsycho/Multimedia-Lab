@@ -1,8 +1,3 @@
-
-# coding: utf-8
-
-# In[1]:
-
 from matplotlib import pyplot as plt
 import matplotlib as mpb
 import cv2
@@ -10,43 +5,20 @@ import numpy as np
 #get_ipython().magic(u'matplotlib inline')
 
 
-# In[2]:
-
 #Converting to YCbCr color space
 path=str(raw_input("Enter the path of the file to be compressed: "))
 img=cv2.imread(path)
 
 
-# In[3]:
-
 img_YCbCr=cv2.cvtColor(img,cv2.COLOR_BGR2YCR_CB)
-
-
-# In[4]:
-
-#print type(img_YCbCr)
-
-
-# In[5]:
-
 l=img_YCbCr.shape
 #Now just pick the Y channel
 img_Y=np.array(img_YCbCr[:,:,0],dtype=np.float64)
-
-
-# In[6]:
-
 img_Y=np.array(img_YCbCr,dtype=np.float64)
-
-
-# In[7]:
 
 #downsampling
 img_Y[:,:,1]=2*np.round(img_YCbCr[:,:,1]/2)
 img_Y[:,:,2]=2*np.round(img_YCbCr[:,:,2]/2)
-
-
-# In[8]:
 
 Q=np.array([[16, 11, 10, 16, 24, 40, 51, 61 ],
      [12, 12, 14, 19, 26, 28, 60, 55, ],
@@ -56,9 +28,6 @@ Q=np.array([[16, 11, 10, 16, 24, 40, 51, 61 ],
      [24, 35, 55, 64, 81, 104, 113, 92 ],
      [49, 64, 78, 87, 103, 121, 120, 101],
      [72, 92, 95, 98, 112,100, 103, 99]])
-
-
-# In[9]:
 
 size=img_Y.shape
 for k in range(size[2]):
@@ -72,22 +41,9 @@ for k in range(size[2]):
             temp=cv2.idct(temp)
             img_Y[i*8:i*8+8,j*8:j*8+8,k]=temp
 
-
-# In[10]:
-
 #converting back to rgb
-img_comp=cv2.cvtColor(np.uint8(img_Y),cv2.COLOR_YCR_CB2RGB)
+img_comp=cv2.cvtColor(np.uint8(img_Y),cv2.COLOR_YCR_CB2BGR)
 
-
-# In[24]:
-
-#plt.figure(0)
-#plt.imshow(img)
-#plt.title('Original')
-#plt.figure(1)
-#plt.imshow(img_comp)
-#plt.title('Compressed')
-#plt.show()
 x=0
 for i in range(len(path)):
     x+=1

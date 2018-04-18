@@ -112,12 +112,6 @@ pair<struct node*,struct node*> display_lo(struct node* root,bool flag = false){
 		if(temp == nullptr)
 			if(stk.empty())
 				break;
-			else {
-				if(!flag)
-					cout<<endl;
-				stk.push(nullptr);
-				continue;
-			}
 
 		if(flag)
 			order.push(temp);

@@ -1,95 +1,77 @@
-#include<iostream>
-#include<vector>
-#include<queue>
-#include<map>
-
+#include <iostream>
+#include <functional> #include <string>
+#include <map>
+#include <queue>
 using namespace std;
-
 struct node{
-  string str;
-  int weight;
-
-  struct node* left;
-  struct node* right;
-
-  node(string s,int val):str(s),weight(val),left(nullptr),right(nullptr){}
+  char sym;
+  bool isleaf;
+  int freq;
+  node *left, *right;
 };
 
-struct node* huffman(int n){
-
-  auto cmp = [](struct node* a,struct node *b){return a->weight > b->weight;};
-  priority_queue<struct node*,vector<struct node*>,decltype(cmp)> heap(cmp);
-
-  struct node* temp;
-  string s;
-  int val;
-
-  for(int i=0;i<n;i++){
-    cin>>s;
-    cin>>val;
-
-    temp = new struct node(s,val);
-    heap.push(temp);
-  }
-
-  struct node* makeshift;
-
-  while(true){
-    temp = heap.top();
-    heap.pop();
-    if(heap.empty())
-      break;
-
-    makeshift = heap.top();
-    heap.pop();
-    struct node* join = new struct node(temp->str+makeshift->str,temp->weight+makeshift->weight);
-
-    if(temp->weight > makeshift->weight){
-      join->left = temp;
-      join->right = makeshift;
-    }
-    else {
-      join->left = makeshift;
-      join->right = temp;
-    }
-
-    heap.push(join);
-  }
-
-  return temp;
+node* newNode(char ch, int f=0){
+    node* ele=new node;
+    ele->sym=ch;
+    ele->isleaf=true;
+    ele->freq=f;
+    ele->left=ele->right=nullptr;
+    return ele;
 }
 
-void encode(struct node* head,map<string,string> &codes,string codeword){
+string print(node* root,char a, string s=""){
 
-  if(head->left == nullptr && head->right == nullptr){
-    codes[head->str] = codeword;
-    return;
-  }
+  if(root->isleaf && root->sym==a)
+    return s;
+  else if(root->isleaf)
+    return "";
 
-  encode(head->left,codes,codeword+"0");
-  encode(head->right,codes,codeword+"1");
+  string t=print(root->left,a,s+"0") + print(root->right,a,s+"1");
+
+  return t;
 }
-
-void display(map<string,string> codes){
-
-  cout<<"letter "<<" codeword "<<endl;
-  for(auto i=codes.begin();i!=codes.end();i++){
-    cout<<"  "<<i->first<<"        "<<i->second<<endl;
-  }
-
-}
-
 int main(){
+  string input,output;
+  cin>>input;
+  map<char,node*> count;
+  for(int i=0;i<input.length();i++){
+    if(count.find(input[i])==count.end()){
+      count[input[i]]=newNode(input[i]);
+    }
+    (count[input[i]]->freq)+=1;
+  }
 
-  int n;
-  cin>>n;
+  auto cmp=[](node* left,node* right) { return ((left->freq) > (right->freq)); };
+  priority_queue<node*,vector<node*>,decltype(cmp)> q(cmp);
 
-  struct node* head = huffman(n);
+  map<char,node*>::iterator i;
+  i=count.begin();
+  for(;i!=count.end();i++){
+    q.push(i->second);
+  }
 
-  map<string,string> codes;
-  encode(head,codes,"");
+  node *left, *right,*head;
+  while(!q.empty()){
+    if(q.size()==1){
+      head=q.top();
+      q.pop();
+      break;
+    }
+    left=q.top();
+    q.pop();
+    right=q.top();
+    q.pop();
+    head=newNode('\0',(left->freq) + (right->freq));
+    head->left=left;
+    head->right=right;
+    head->isleaf=false;
+    q.push(head);
+  }
 
-  display(codes);
+  cout<<"Enter the string to encode using the above string as average: ";
+  cin>>output;
 
-  return 0;
+  for(int j=0;j<output.length();j++)
+    cout<<print(head,output[j])<<" ";
+  cout<<endl;
 }
